@@ -24,7 +24,7 @@ cp .env.example .env
 |------|------|
 | `BAILIAN_API_KEY` | 百炼 Coding Plan API Key，三大 AI 开发工具共用。获取地址：[百炼控制台](https://bailian.console.aliyun.com/cn-beijing/?tab=model#/efm/coding_plan) |
 | `PROXY_PORT` | 宿主机代理端口，容器内通过 `host.docker.internal` 转发。Clash 默认 `7890`，V2Ray 默认 `10808`，ClashVerge 默认 `7897`。未设置时默认 `7890` |
-| `SSH_AUTHORIZED_KEYS` | 宿主机 `authorized_keys` 文件路径，挂载到容器内用于 SSH 免密登录。默认 `/home/ubuntu/.ssh/authorized_keys`；若公钥在其他路径，可修改此变量 |
+| `SSH_AUTHORIZED_KEYS` | 宿主机 SSH 公钥文件路径，挂载到容器内用于 SSH 免密登录。默认 `~/.ssh/id_ed25519.pub`；如使用 RSA 密钥，改为 `~/.ssh/id_rsa.pub` |
 
 `.env` 文件已在 `.gitignore` 中，不会被提交到 Git。
 
@@ -45,7 +45,7 @@ docker compose exec dev bash           # 以 root 用户进入
 
 **方式二：SSH（支持远程访问）**
 
-容器将宿主机的 `~/.ssh/authorized_keys` 挂载到容器内，支持免密 SSH 登录：
+容器将宿主机的 SSH 公钥（如 `~/.ssh/id_ed25519.pub`）挂载到容器内作为 `authorized_keys`，支持免密 SSH 登录：
 
 ```bash
 ssh -p 22255 dev@localhost            # 以 dev 用户登录（推荐）
@@ -53,7 +53,7 @@ ssh -p 22255 root@localhost           # 以 root 用户登录
 ssh -p 22255 dev@<宿主机IP>           # 从远程机器
 ```
 
-> 前提：宿主机 `~/.ssh/authorized_keys` 中包含你的公钥。
+> 前提：`.env` 中的 `SSH_AUTHORIZED_KEYS` 指向你的 SSH 公钥文件（`~/.ssh/id_ed25519.pub` 或 `~/.ssh/id_rsa.pub`）。
 
 进入容器后即可直接使用 `claude`、`opencode`、`codex` 命令，所有配置已通过仓库内的配置文件和环境变量自动注入，**无需手动登录或配置**。
 
